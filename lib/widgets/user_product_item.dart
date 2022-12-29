@@ -41,7 +41,7 @@ class UserProductItem extends StatelessWidget {
                       .deleteProduct(id);
                 } catch (error) {
                   scaffold.showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text(
                         'Deleting failed',
                         textAlign: TextAlign.center,

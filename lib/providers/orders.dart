@@ -22,15 +22,21 @@ class OrderItem {
 class Orders with ChangeNotifier {
   List<OrderItem> _orders = [];
 
+  String? authToken;
+  String? userId;
+
+  Orders(this.authToken, this.userId, this._orders);
+
   List<OrderItem> get orders {
     return [..._orders];
   }
 
   Future<void> fetchAndSetOrders() async {
-    final response = await http
-        .get(Uri.parse('https://databaseName.firebaseio.com/orders.json'));
-    final extractedData = json.decode(response.body) as Map<String, dynamic>;
-    List<OrderItem> loadedOrders = [];
+    final url =
+        Uri.parse('https://databaseName/orders/$userId.json?auth=$authToken');
+    final response = await http.get(url);
+    final extractedData = json.decode(response.body);
+    final List<OrderItem> loadedOrders = [];
     if (extractedData == null) {
       return;
     }
@@ -54,15 +60,17 @@ class Orders with ChangeNotifier {
           ),
         );
       },
-    );
+    ) as Map<String, dynamic>;
     _orders = loadedOrders.reversed.toList();
     notifyListeners();
   }
 
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
+    final url =
+        Uri.parse('https://databaseName/orders/$userId.json?auth=$authToken');
     final timestamp = DateTime.now();
     final response = await http.post(
-      Uri.parse('https://databaseName.firebaseio.com/orders.json'),
+      url,
       body: json.encode({
         'amount': total,
         'dateTime': timestamp.toIso8601String(),
