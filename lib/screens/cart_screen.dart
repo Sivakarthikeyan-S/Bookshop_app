@@ -6,7 +6,7 @@ import '../widgets/cart_item.dart';
 import '../providers/orders.dart';
 
 class CartScreen extends StatelessWidget {
-  CartScreen({super.key});
+  const CartScreen({super.key});
 
   static const routeName = '/cart';
 
@@ -22,7 +22,7 @@ class CartScreen extends StatelessWidget {
           Card(
             margin: const EdgeInsets.all(15),
             child: Padding(
-              padding: EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -33,7 +33,7 @@ class CartScreen extends StatelessWidget {
                   const Spacer(),
                   Chip(
                     label: Text(
-                      '\$${cart.totalAmount}',
+                      '\$${cart.totalAmount.toStringAsFixed(2)}',
                       style: const TextStyle(color: Colors.white),
                     ),
                     backgroundColor: Theme.of(context).primaryColor,

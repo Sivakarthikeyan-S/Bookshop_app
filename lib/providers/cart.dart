@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
 class CartItem {
@@ -22,7 +23,7 @@ class Cart with ChangeNotifier {
   }
 
   int get itemCount {
-    return _items.length;
+    return _items.isEmpty ? 0 : _items.length;
   }
 
   double get totalAmount {
@@ -41,8 +42,8 @@ class Cart with ChangeNotifier {
         (existingCartItem) => CartItem(
           id: existingCartItem.id,
           title: existingCartItem.title,
-          price: existingCartItem.price,
           quantity: existingCartItem.quantity + 1,
+          price: existingCartItem.price,
         ),
       );
     } else {
@@ -51,8 +52,8 @@ class Cart with ChangeNotifier {
         () => CartItem(
           id: DateTime.now().toString(),
           title: title,
-          price: price,
           quantity: 1,
+          price: price,
         ),
       );
     }
@@ -74,8 +75,8 @@ class Cart with ChangeNotifier {
         (existingCartItem) => CartItem(
           id: existingCartItem.id,
           title: existingCartItem.title,
-          price: existingCartItem.price,
           quantity: existingCartItem.quantity - 1,
+          price: existingCartItem.price,
         ),
       );
     } else {

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
@@ -21,7 +22,6 @@ class OrderItem {
 
 class Orders with ChangeNotifier {
   List<OrderItem> _orders = [];
-
   String? authToken;
   String? userId;
 
@@ -32,11 +32,11 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> fetchAndSetOrders() async {
-    final url =
-        Uri.parse('https://databaseName/orders/$userId.json?auth=$authToken');
+    final url = Uri.parse(
+        'https://databaseName.firebaseio.com/orders/$userId.json?auth=$authToken');
     final response = await http.get(url);
-    final extractedData = json.decode(response.body);
-    final List<OrderItem> loadedOrders = [];
+    final extractedData = json.decode(response.body) as Map<String, dynamic>;
+    List<OrderItem> loadedOrders = [];
     if (extractedData == null) {
       return;
     }
@@ -50,7 +50,7 @@ class Orders with ChangeNotifier {
                 .map(
                   (item) => CartItem(
                     id: item['id'],
-                    price: item['price'] as double,
+                    price: item['price'],
                     quantity: item['quantity'],
                     title: item['title'],
                   ),
@@ -60,39 +60,45 @@ class Orders with ChangeNotifier {
           ),
         );
       },
-    ) as Map<String, dynamic>;
+    );
     _orders = loadedOrders.reversed.toList();
-    notifyListeners();
+    // notifyListeners();
   }
 
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
-    final url =
-        Uri.parse('https://databaseName/orders/$userId.json?auth=$authToken');
+    final url = Uri.parse(
+        'https://databaseName.firebaseio.com/orders/$userId.json?auth=$authToken');
     final timestamp = DateTime.now();
-    final response = await http.post(
-      url,
-      body: json.encode({
-        'amount': total,
-        'dateTime': timestamp.toIso8601String(),
-        'products': cartProducts
-            .map((cp) => {
-                  'id': cp.id,
-                  'title': cp.title,
-                  'quantity': cp.quantity,
-                  'price': cp.price,
-                })
-            .toList(),
-      }),
-    );
-    _orders.insert(
-      0,
-      OrderItem(
-        id: json.decode(response.body)['name'],
-        amount: total,
-        dateTime: timestamp,
-        products: cartProducts,
-      ),
-    );
-    notifyListeners();
+    try {
+      final response = await http.post(
+        url,
+        body: json.encode(
+          {
+            'amount': total,
+            'products': cartProducts
+                .map((cp) => {
+                      'id': cp.id,
+                      'title': cp.title,
+                      'price': cp.price,
+                      'quantity': cp.quantity,
+                    })
+                .toList(),
+            'dateTime': timestamp.toIso8601String(),
+          },
+        ),
+      );
+      _orders.insert(
+        0,
+        OrderItem(
+          id: json.decode(response.body)['name'],
+          amount: total,
+          products: cartProducts,
+          dateTime: timestamp,
+        ),
+      );
+      notifyListeners();
+    } catch (error) {
+      print(error);
+    }
   }
 }
